@@ -1,1 +1,1 @@
-This directory contains materials for BIOI607 assignments. 
+This directory contains materials for BIOI621 assignments. 
