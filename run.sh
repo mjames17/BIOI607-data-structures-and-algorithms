@@ -1,0 +1,1 @@
+python3 /autograder/submission/shortestSS.py > output

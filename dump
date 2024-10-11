@@ -1,0 +1,90 @@
+#####################################
+# Implement your code starting here #
+#####################################
+
+def overlap(a, b):
+    """Find the longest overlap between suffix of 'a' and prefix of 'b'."""
+    max_overlap = 0
+    for i in range(1, min(len(a), len(b)) + 1):
+        if a[-i:] == b[:i]:  # Check if suffix of 'a' matches prefix of 'b'
+            max_overlap = i  # Update the max overlap length
+    return max_overlap
+
+def find_shortestSS(data):
+    '''
+    You are given at most 50 DNA strings in a dictionary format, with the sequence id as key and the sequence as value. 
+    Your code should return the shortest superstring containing all of the provided strings.
+    '''
+    reads = list(data.values())  # Extract DNA sequences from the dictionary
+    
+    # Continue merging until there's only one string left
+    while len(reads) > 1:
+        max_overlap_len = -1
+        best_a, best_b = None, None
+        best_merged = None
+        
+        # Compare every pair of reads to find the best pair to merge
+        for i in range(len(reads)):
+            for j in range(len(reads)):
+                if i != j:
+                    a, b = reads[i], reads[j]
+                    
+                    # Check if a is a complete substring of b, or vice versa
+                    if a in b:
+                        best_a, best_b = a, b
+                        best_merged = b  # 'a' is redundant, keep 'b'
+                        max_overlap_len = len(a)
+                        break
+                    elif b in a:
+                        best_a, best_b = a, b
+                        best_merged = a  # 'b' is redundant, keep 'a'
+                        max_overlap_len = len(b)
+                        break
+                    
+                    # Check for overlap between a's suffix and b's prefix
+                    overlap_len = overlap(a, b)
+                    
+                    # Merge if overlap is better than the current best
+                    if overlap_len > max_overlap_len:
+                        max_overlap_len = overlap_len
+                        best_a, best_b = a, b
+                        best_merged = a + b[overlap_len:]  # Merge reads based on overlap
+        
+        if best_a is not None and best_b is not None:
+            # Remove the two best overlapping reads and add the merged result
+            reads.remove(best_a)
+            reads.remove(best_b)
+            reads.append(best_merged)  # Append the merged read back to the list
+        else:
+            # Break if no overlap is found
+            break
+    
+    # Return the final merged superstring
+    return reads[0] if reads else ""  # Return the last remaining read as the result
+
+#####################################
+#   Do not modify below this line   #
+#####################################
+
+string = {}
+try:
+    with open("input", "r") as file:
+        l = file.readline().rstrip()
+        while l:
+            if l.startswith(">"):
+                id = l.split(">")[1]
+                dna = ''
+                while l:
+                    l = file.readline().rstrip()
+                    if l.startswith(">"): 
+                        break
+                    dna += l
+                string[id] = dna
+except OSError as err:
+    print(f"Failed to open input: {err}")
+  
+if len(string) > 1:
+    ans = find_shortestSS(string)
+    print(ans)
+else:
+    print('Problem reading input, appears to be empty...')
